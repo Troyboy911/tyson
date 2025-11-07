@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY agent.py .
+COPY api.py .
 COPY .env* .
 
 # Create non-root user
@@ -27,4 +28,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD python -c "import sys; sys.exit(0)"
 
 # Run the agent
-CMD ["python", "-u", "agent.py"]
+CMD ["python", "-u", "api.py"]
