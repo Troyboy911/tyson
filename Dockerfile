@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY agent.py .
 COPY api.py .
+COPY database.py .
 COPY .env* .
 
 # Create non-root user
