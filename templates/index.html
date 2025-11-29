@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyson AI Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo h1 {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #10b981;
+            font-size: 0.875rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user { flex-direction: row-reverse; }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .message.assistant .avatar {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            color: #000;
+        }
+        .message.user .avatar {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+            max-width: 80%;
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+        .message.user .content {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .input-area {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        #messageInput {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #fff;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        #messageInput:focus {
+            border-color: #ff6b6b;
+        }
+        #messageInput::placeholder { color: #666; }
+        #sendBtn {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #sendBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+        }
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        .settings-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .settings-btn:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1>TYSON</h1>
+        </div>
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>Online</span>
+        </div>
+        <button class="settings-btn" onclick="toggleSettings()">Settings</button>
+    </div>
+    <div class="chat-container">
+        <div class="messages" id="messages">
+            <div class="message assistant">
+                <div class="avatar">T</div>
+                <div class="content">Hey! I'm Tyson, your AI assistant powered by Perplexity. What can I help you with today?</div>
+            </div>
+        </div>
+    </div>
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="messageInput" placeholder="Type your message..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        const API_URL = window.location.origin;
+        let sessionId = 'session_' + Date.now();
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+            addMessage(message, 'user');
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+            showTyping();
+            try {
+                const response = await fetch(API_URL + '/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, session_id: sessionId })
+                });
+                const data = await response.json();
+                hideTyping();
+                addMessage(data.response || data.error || 'No response', 'assistant');
+            } catch (error) {
+                hideTyping();
+                addMessage('Error: ' + error.message, 'assistant');
+            }
+            document.getElementById('sendBtn').disabled = false;
+        }
+        function addMessage(text, role) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message ' + role;
+            div.innerHTML = '<div class="avatar">' + (role === 'user' ? 'U' : 'T') + '</div><div class="content">' + escapeHtml(text) + '</div>';
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        function showTyping() {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.id = 'typing';
+            div.className = 'message assistant';
+            div.innerHTML = '<div class="avatar">T</div><div class="content"><div class="typing"><span></span><span></span><span></span></div></div>';
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+        function toggleSettings() {
+            alert('Settings coming soon!');
+        }
+    </script>
+</body>
+</html>
