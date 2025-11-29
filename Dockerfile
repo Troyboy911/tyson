@@ -19,6 +19,7 @@ COPY agent.py .
 COPY api.py .
 COPY database.py .
 COPY .env* .
+COPY templates/ templates/
 
 # Create non-root user
 RUN useradd -m -u 1000 tyson && chown -R tyson:tyson /app
